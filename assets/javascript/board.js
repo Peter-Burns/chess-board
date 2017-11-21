@@ -1,61 +1,88 @@
 var canvas = document.getElementById("board");
-var ctx = board.getContext("2d");
-ctx.fillStyle = "#FFFFFF";
-for (var r = 0; r < 8; r++) {
-    for (var c = 0; c < 8; c++) {
-        if (r % 2 === 0 && c % 2 === 0) {
-            ctx.fillRect(40 * r, 40 * c, 40, 40);
-        }
-        if (r % 2 !== 0 && c % 2 !== 0) {
-            ctx.fillRect(40 * r, 40 * c, 40, 40);
-        }
-    }
-}
-var blackPawn = document.getElementById('blackPawn');
-var whitePawn = document.getElementById('whitePawn');
-for (var i = 0; i < 8; i++) {
-    ctx.drawImage(whitePawn, 40 * i, 240, 40, 40);
-    ctx.drawImage(blackPawn, 40 * i, 40, 40, 40);
-}
-var whiteKnight = document.getElementById('whiteKnight');
-var whiteBishop = document.getElementById('whiteBishop');
-var whiteRook = document.getElementById('whiteRook');
-var whiteQueen = document.getElementById('whiteQueen');
-var whiteKing = document.getElementById('whiteKing');
-ctx.drawImage(whiteKnight, 40, 280, 40, 40);
-ctx.drawImage(whiteKnight, 240, 280, 40, 40);
-ctx.drawImage(whiteRook, 280, 280, 40, 40);
-ctx.drawImage(whiteRook, 0, 280, 40, 40);
-ctx.drawImage(whiteBishop, 200, 280, 40, 40);
-ctx.drawImage(whiteBishop, 80, 280, 40, 40);
-ctx.drawImage(whiteQueen, 120, 280, 40, 40);
-ctx.drawImage(whiteKing, 160, 280, 40, 40);
-ctx.drawImage(blackKnight, 40, 0, 40, 40);
-ctx.drawImage(blackKnight, 240, 0, 40, 40);
-ctx.drawImage(blackRook, 280, 0, 40, 40);
-ctx.drawImage(blackRook, 0, 0, 40, 40);
-ctx.drawImage(blackBishop, 200, 0, 40, 40);
-ctx.drawImage(blackBishop, 80, 0, 40, 40);
-ctx.drawImage(blackQueen, 120, 0, 40, 40);
-ctx.drawImage(blackKing, 160, 0, 40, 40);
+var ctx = canvas.getContext("2d");
+var movePicks = 0;
+var boardState = [
+    ['blackRook', 'blackKnight', 'blackBishop', 'blackQueen', 'blackKing', 'blackBishop', 'blackKnight', 'blackRook'],
+    ['blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn'],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn'],
+    ['whiteRook', 'whiteKnight', 'whiteBishop', 'whiteQueen', 'whiteKing', 'whiteBishop', 'whiteKnight', 'whiteRook']
+];
+var positionHolder = [];
 $('#board').on('click', function (event) {
+    movePicks++;
     var xPos = this.getBoundingClientRect().left;
     var yPos = this.getBoundingClientRect().top;
-    var X = Math.ceil((event.clientX - xPos) / 40);
-    var Y = 8 - Math.floor((event.clientY - yPos) / 40);
-    console.log('You clicked ' + X + ',' + Y);
-    outlineRect(this, [40 * (X - 1), 40 * (8 - Y)]);
-    // clearRect(this, [40 * (X - 1), 40 * (8 - Y)],'#FFFFFF');
+    var X = Math.floor((event.clientX - xPos) / 40);
+    var Y = Math.floor((event.clientY - yPos) / 40);
+    positionHolder.push(Y, X);
+    outlineRect(this, [40 * X, 40 * Y]);
+    if (movePicks === 2) {
+        movePicks = 0;
+        movePiece(positionHolder);
+        drawBoard();
+        nextTurn();
+    }
 });
+function validMove(move) {
+    return false;
+}
 function outlineRect(canvas, position) {
-    var ctx = canvas.getContext('2d');
+    ctx.beginPath();
     ctx.rect(position[0] + 1, position[1] + 1, 38, 38);
     ctx.lineWidth = "2";
     ctx.strokeStyle = "red";
     ctx.stroke();
 }
-function clearRect(canvas, position, color) {
-    var ctx = canvas.getContext('2d');
-    ctx.fillStyle = color;
-    ctx.fillRect(position[0],position[1],40,40);
+function nextTurn() {
+    var newTurn = Math.abs(parseInt($('#turnButton').attr('cy')) - 324);
+    $('#turnButton').attr('cy', newTurn);
+    if ($('#turnButton').attr('cy') == 22) {
+        $('#turnButton').attr('fill', 'black');
+    }
+    else {
+        $('#turnButton').attr('fill', 'white');
+    }
 }
+function drawBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backBoard, 0, 0, 320, 320);
+    for (var r = 0; r < 8; r++) {
+        for (var c = 0; c < 8; c++) {
+            if (boardState[r][c] !== '') {
+                var piece = document.getElementById(boardState[r][c]);
+                ctx.drawImage(piece, 40 * c, 40 * r, 40, 40);
+            }
+        }
+    }
+}
+function newGame() {
+    boardState = [
+        ['blackRook', 'blackKnight', 'blackBishop', 'blackQueen', 'blackKing', 'blackBishop', 'blackKnight', 'blackRook'],
+        ['blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn'],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn', 'whitePawn'],
+        ['whiteRook', 'whiteKnight', 'whiteBishop', 'whiteQueen', 'whiteKing', 'whiteBishop', 'whiteKnight', 'whiteRook']
+    ];
+    drawBoard();
+    $('#turnButton').attr('cy', 302);
+    $('#turnButton').attr('fill', 'white');
+}
+function movePiece(positions) {
+    positionHolder = [];
+    boardState[positions[2]][positions[3]] = boardState[positions[0]][positions[1]];
+    boardState[positions[0]][positions[1]] = '';
+}
+$('#turnButton').on('click', function () {
+    nextTurn();
+});
+$('#reset').on('click', function () {
+    newGame();
+});
+newGame();
