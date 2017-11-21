@@ -22,13 +22,15 @@ $('#board').on('click', function (event) {
     outlineRect(this, [40 * X, 40 * Y]);
     if (movePicks === 2) {
         movePicks = 0;
-        movePiece(positionHolder);
+        if (validMove(positionHolder)) {
+            movePiece(positionHolder);
+            nextTurn();
+        }
         drawBoard();
-        nextTurn();
     }
 });
 function validMove(move) {
-    return false;
+    return true;
 }
 function outlineRect(canvas, position) {
     ctx.beginPath();
@@ -60,6 +62,7 @@ function drawBoard() {
     }
 }
 function newGame() {
+    $('#takenPieces').empty();
     boardState = [
         ['blackRook', 'blackKnight', 'blackBishop', 'blackQueen', 'blackKing', 'blackBishop', 'blackKnight', 'blackRook'],
         ['blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn'],
@@ -76,6 +79,9 @@ function newGame() {
 }
 function movePiece(positions) {
     positionHolder = [];
+    if(boardState[positions[2]][positions[3]]!==''){
+        $('#takenPieces').append($(`<img src="assets/images/${boardState[positions[2]][positions[3]]}.svg" width='40' height='40'>`));
+    }
     boardState[positions[2]][positions[3]] = boardState[positions[0]][positions[1]];
     boardState[positions[0]][positions[1]] = '';
 }
